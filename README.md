@@ -70,9 +70,17 @@ If you don't have an account yet, **[sign up for free](https://enrich.growthtool
 
 Then grab your API key from **[growthtoolkit.io/api-keys](https://enrich.growthtoolkit.io/api-keys/)**. It starts with `lf_...`.
 
-### 2. Add to your AI tool
+### 2. Install the MCP server
 
-Pick your tool and add the config below. That's it.
+```bash
+git clone https://github.com/iamanantgupta/growthtoolkit-mcp.git
+cd growthtoolkit-mcp
+npm install && npm run build
+```
+
+### 3. Add to your AI tool
+
+Pick your tool and add the config below. Replace `/path/to/growthtoolkit-mcp` with the actual path where you cloned the repo.
 
 #### Claude Desktop
 
@@ -82,8 +90,8 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 {
   "mcpServers": {
     "growthtoolkit": {
-      "command": "npx",
-      "args": ["-y", "growthtoolkit-mcp"],
+      "command": "node",
+      "args": ["/path/to/growthtoolkit-mcp/dist/index.js"],
       "env": {
         "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
       }
@@ -100,8 +108,8 @@ Add to `.claude/settings.json` or project-level settings:
 {
   "mcpServers": {
     "growthtoolkit": {
-      "command": "npx",
-      "args": ["-y", "growthtoolkit-mcp"],
+      "command": "node",
+      "args": ["/path/to/growthtoolkit-mcp/dist/index.js"],
       "env": {
         "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
       }
@@ -118,8 +126,8 @@ Add to `.cursor/mcp.json`, `.windsurf/mcp.json`, or your editor's MCP config:
 {
   "mcpServers": {
     "growthtoolkit": {
-      "command": "npx",
-      "args": ["-y", "growthtoolkit-mcp"],
+      "command": "node",
+      "args": ["/path/to/growthtoolkit-mcp/dist/index.js"],
       "env": {
         "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
       }
@@ -129,26 +137,6 @@ Add to `.cursor/mcp.json`, `.windsurf/mcp.json`, or your editor's MCP config:
 ```
 
 > Replace `lf_your_api_key_here` with your actual API key from [growthtoolkit.io/api-keys](https://enrich.growthtoolkit.io/api-keys/).
-
-### 3. Alternative: Install from source
-
-If you prefer not to use `npx`:
-
-```bash
-git clone https://github.com/iamanantgupta/growthtoolkit-mcp.git
-cd growthtoolkit-mcp
-npm install && npm run build
-```
-
-Then use this config instead:
-
-```json
-{
-  "command": "node",
-  "args": ["/absolute/path/to/growthtoolkit-mcp/dist/index.js"],
-  "env": { "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here" }
-}
-```
 
 ## Tool Reference
 
