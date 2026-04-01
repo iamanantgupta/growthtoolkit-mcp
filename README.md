@@ -197,6 +197,10 @@ When rate limited, the API returns HTTP 429 with a `sec` field telling you how l
 - **API Keys**: [growthtoolkit.io/api-keys](https://enrich.growthtoolkit.io/api-keys/)
 - **API Docs**: [growthtoolkit.io/docs](https://enrich.growthtoolkit.io/docs/)
 
+## Built by
+
+Created by [Anant Gupta](https://www.linkedin.com/in/iamanantgupta/), Founder of [GrowthToolkit](https://growthtoolkit.io).
+
 ## License
 
 MIT
