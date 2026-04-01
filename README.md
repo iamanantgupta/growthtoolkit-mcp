@@ -17,7 +17,7 @@ It's the all-in-one alternative to Apollo, Lusha, Hunter, and RocketReach, with 
 Instead of switching between your AI assistant and the GrowthToolkit dashboard, just ask naturally:
 
 - *"Find the email for John Smith at Google"*
-- *"Enrich this LinkedIn profile: https://linkedin.com/in/satyanadella"*
+- *"Enrich this LinkedIn profile: https://www.linkedin.com/in/iamanantgupta/"*
 - *"Verify if hello@example.com is a valid email"*
 - *"Show me my prospect lists and export the top one"*
 
