@@ -95,20 +95,20 @@ server.tool(
 
 server.tool(
   "enrich_linkedin",
-  "Enrich a contact by LinkedIn profile URL. Returns emails, phone numbers, job title, company, experience, education, skills, and more. Set emails=1 and phones=1 to unlock contact info.",
+  "Enrich a contact by LinkedIn profile URL or Sales Navigator URL. Returns emails, phone numbers, job title, company, experience, education, skills, and more. Set unlock_emails=1 and unlock_phone=1 to unlock contact info.",
   {
     linkedin_url: z
       .string()
       .describe(
-        "LinkedIn profile URL (e.g. https://linkedin.com/in/username)"
+        "LinkedIn profile URL or Sales Navigator URL (e.g. https://www.linkedin.com/in/username)"
       ),
-    emails: z
+    unlock_emails: z
       .number()
       .min(0)
       .max(1)
       .default(1)
       .describe("1 to unlock emails, 0 to skip. Default: 1"),
-    phones: z
+    unlock_phone: z
       .number()
       .min(0)
       .max(1)
@@ -124,8 +124,8 @@ server.tool(
       .optional()
       .describe("Webhook URL to receive results when enrichment completes"),
   },
-  async ({ linkedin_url, emails, phones, list_id, webhook_url }) => {
-    const body: Record<string, unknown> = { url: linkedin_url, emails, phones };
+  async ({ linkedin_url, unlock_emails, unlock_phone, list_id, webhook_url }) => {
+    const body: Record<string, unknown> = { url: linkedin_url, unlock_emails, unlock_phone };
     if (list_id !== undefined) body.list_id = list_id;
     if (webhook_url) body.webhook_url = webhook_url;
     const result = await apiRequest("/enrichment/linkedin/", "POST", body);
