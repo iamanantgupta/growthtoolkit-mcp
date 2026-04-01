@@ -98,14 +98,14 @@ Copy the JSON config printed by the setup script. Then paste it into the right f
 | **Cursor** | `.cursor/mcp.json` |
 | **Windsurf** | `.windsurf/mcp.json` |
 
-The config looks like this (the setup script fills in the correct path automatically):
+The config will look like this (the setup script fills in the correct absolute path for your machine):
 
 ```json
 {
   "mcpServers": {
     "growthtoolkit": {
       "command": "node",
-      "args": ["~/.growthtoolkit-mcp/dist/index.js"],
+      "args": ["/Users/yourname/.growthtoolkit-mcp/dist/index.js"],
       "env": {
         "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
       }
@@ -114,17 +114,31 @@ The config looks like this (the setup script fills in the correct path automatic
 }
 ```
 
+> **Important:** Always use the config printed by the setup script. It has the correct absolute path for your machine. The example above is just to show the format.
+
+> **Important:** If your config file already has other MCP servers, just add the `"growthtoolkit"` section inside the existing `"mcpServers"` object. Do not replace the entire file.
+
+> **Important:** After adding the config, restart your AI tool for the changes to take effect.
+
 Replace `lf_your_api_key_here` with your actual API key from [growthtoolkit.io/api-keys](https://enrich.growthtoolkit.io/api-keys/).
 
 ### Manual install (if you prefer)
 
 ```bash
-git clone https://github.com/iamanantgupta/growthtoolkit-mcp.git ~/.growthtoolkit-mcp
-cd ~/.growthtoolkit-mcp
+# macOS / Linux
+git clone https://github.com/iamanantgupta/growthtoolkit-mcp.git $HOME/.growthtoolkit-mcp
+cd $HOME/.growthtoolkit-mcp
 npm install && npm run build
 ```
 
-Then use the config above.
+```powershell
+# Windows (PowerShell)
+git clone https://github.com/iamanantgupta/growthtoolkit-mcp.git $env:USERPROFILE\.growthtoolkit-mcp
+cd $env:USERPROFILE\.growthtoolkit-mcp
+npm install; npm run build
+```
+
+Then use the config format above, replacing the path with the full absolute path to `dist/index.js` on your machine.
 
 ## Tool Reference
 
