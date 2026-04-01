@@ -131,7 +131,8 @@ Every domain request returns "Failed to parse JSON" - the API returns non-JSON c
 
 - `page`, `page_size`, `q` all work correctly.
 - `page=9999` returns empty array gracefully (not an error).
-- `detailed=1` returns 0 items on ALL list types. This seems like a bug or the parameter only works with `page_size` set differently. The API returns success but empty data.
+- `detailed=1` WORKS correctly when `page_size` is valid (5-50). Returns extra fields: count, created_by, created_at, last_item_added_at. LinkedIn/SN scrapers also return search_count and group_count.
+- **`page_size` must be between 5 and 50.** Values outside this range return status 417 error. Default is 10.
 
 ### 9. Export APIs
 
@@ -173,11 +174,59 @@ Every domain request returns "Failed to parse JSON" - the API returns non-JSON c
 - Many test "failures" were actually just rate limits, not real errors.
 - Rate limits are per-category, not global.
 
+## Additional Findings (Round 2 - List/Export deep dive)
+
+### page_size Constraints
+- **Must be between 5 and 50.** Anything outside returns status 417.
+- `page_size=0`, `-1`, `100`, `51` all fail.
+- `page_size=abc` returns status 417 with "Page size should be between 5 and 50".
+- Default (no param) is 10.
+
+### detailed Parameter
+- Works correctly with valid page_size (5-50).
+- `detailed=0` returns: `id, name`
+- `detailed=1` returns: `id, name, count, created_by, created_at, last_item_added_at`
+- LinkedIn/SN scraper lists with `detailed=1` also return: `search_count, group_count`
+
+### Export Behavior
+- Fixed page size of 700 items (not configurable via page_size param).
+- `page_size` param on exports returns success=false.
+- `page=0` and `page=-1` fail.
+- `q` search param is ignored on exports (still returns all items).
+- Invalid list IDs return status 420 "Invalid list ID".
+- String list IDs (e.g. "abc") return 404.
+
+### Export Item Structures
+- **Prospect export**: 64 fields including all enrichment data
+- **Email finder export**: `id, first_name, last_name, domain, email, created_at`
+- **Email verifier export**: `id, email, is_valid, mx_domain, updated_at, created_at`
+- **Email verifier type_ validation**: Only accepts "valid", "invalid", "all". Returns helpful error for other values.
+
+### Pagination Math
+- `total_pages` is accurate but seems off by 1 (57 items / 10 per page = 5 pages reported, but page 6 returns 7 items).
+- `has_next=false` on the last page.
+- Pages beyond range return empty array (success=true, data=[]).
+
+### Security
+- SQL injection in `q` param: safe (returns 0 results).
+- XSS in `q` param: blocked (returns error).
+- Huge page_size (99999): rejected.
+
+### Error Message Formats
+All validation errors follow: `{"success": false, "status": 400, "message": "field is required in request query"}`
+Format validation: `{"success": false, "status": 417, "message": "descriptive error"}`
+Invalid resources: `{"success": false, "status": 420, "message": "Invalid list ID"}` or `{"success": false, "status": 404, "message": {"user": {"type": "error", "message": "Not found"}}}`
+
+Note: some error messages are strings, others are nested objects with `user.message`. MCP must handle both.
+
 ## MCP Changes Needed
 
-1. **Remove or warn about domain enrichment** - endpoint returns non-JSON
-2. **Handle 429 with retry** - add automatic retry with backoff using the `sec` field
-3. **Handle non-JSON responses** - the API sometimes returns raw text like `None`
-4. **LinkedIn URL validation** - must include `https://` prefix, just username fails
-5. **Handle HTTP 500 for auth errors** - API returns 500 instead of 401
-6. **`detailed=1` appears broken** - returns empty results on all list endpoints
+1. ~~Remove or warn about domain enrichment~~ DONE - marked as potentially unavailable
+2. ~~Handle 429 with retry~~ DONE - auto-retry with sec-based backoff
+3. ~~Handle non-JSON responses~~ DONE - catches raw "None" from domain endpoint
+4. ~~LinkedIn URL validation~~ DONE - auto-prepends https:// for bare URLs/usernames
+5. ~~Handle HTTP 500 for auth errors~~ DONE - returns clean error message
+6. ~~`detailed=1` appears broken~~ FIXED - was using page_size < 5
+7. **Constrain page_size to 5-50** DONE - updated Zod schema with min/max
+8. **Improve detailed description** DONE - explains what extra fields are returned
+9. **Improve export description** DONE - documents 700 items/page and field count

@@ -281,9 +281,9 @@ server.tool(
   "Get all prospect/contact lists in your account.",
   {
     page: z.number().default(1).describe("Page number (default: 1)"),
-    page_size: z.number().default(20).describe("Results per page (default: 20)"),
+    page_size: z.number().min(5).max(50).default(10).describe("Results per page. Must be between 5 and 50 (default: 10)"),
     q: z.string().optional().describe("Search query to filter lists by name"),
-    detailed: z.number().min(0).max(1).optional().describe("1 for detailed info, 0 for basic"),
+    detailed: z.number().min(0).max(1).optional().describe("1 to include count, created_by, created_at, last_item_added_at. 0 for just id and name"),
   },
   async ({ page, page_size, q, detailed }) => {
     let path = `/lists/prospect/?page=${page}&page_size=${page_size}`;
@@ -299,9 +299,9 @@ server.tool(
   "Get all email finder lists in your account.",
   {
     page: z.number().default(1).describe("Page number (default: 1)"),
-    page_size: z.number().default(20).describe("Results per page (default: 20)"),
+    page_size: z.number().min(5).max(50).default(10).describe("Results per page. Must be between 5 and 50 (default: 10)"),
     q: z.string().optional().describe("Search query to filter lists by name"),
-    detailed: z.number().min(0).max(1).optional().describe("1 for detailed info, 0 for basic"),
+    detailed: z.number().min(0).max(1).optional().describe("1 to include count, created_by, created_at, last_item_added_at. 0 for just id and name"),
   },
   async ({ page, page_size, q, detailed }) => {
     let path = `/email-finder/list/?page=${page}&page_size=${page_size}`;
@@ -317,9 +317,9 @@ server.tool(
   "Get all email verifier lists in your account.",
   {
     page: z.number().default(1).describe("Page number (default: 1)"),
-    page_size: z.number().default(20).describe("Results per page (default: 20)"),
+    page_size: z.number().min(5).max(50).default(10).describe("Results per page. Must be between 5 and 50 (default: 10)"),
     q: z.string().optional().describe("Search query to filter lists by name"),
-    detailed: z.number().min(0).max(1).optional().describe("1 for detailed info, 0 for basic"),
+    detailed: z.number().min(0).max(1).optional().describe("1 to include count, created_by, created_at, last_item_added_at. 0 for just id and name"),
   },
   async ({ page, page_size, q, detailed }) => {
     let path = `/email-verifier/list/?page=${page}&page_size=${page_size}`;
@@ -335,9 +335,9 @@ server.tool(
   "Get all LinkedIn scraper lists in your account.",
   {
     page: z.number().default(1).describe("Page number (default: 1)"),
-    page_size: z.number().default(20).describe("Results per page (default: 20)"),
+    page_size: z.number().min(5).max(50).default(10).describe("Results per page. Must be between 5 and 50 (default: 10)"),
     q: z.string().optional().describe("Search query to filter lists by name"),
-    detailed: z.number().min(0).max(1).optional().describe("1 for detailed info, 0 for basic"),
+    detailed: z.number().min(0).max(1).optional().describe("1 to include count, created_by, created_at, last_item_added_at. 0 for just id and name"),
   },
   async ({ page, page_size, q, detailed }) => {
     let path = `/scraper/list/ln/?page=${page}&page_size=${page_size}`;
@@ -353,9 +353,9 @@ server.tool(
   "Get all Sales Navigator scraper lists in your account.",
   {
     page: z.number().default(1).describe("Page number (default: 1)"),
-    page_size: z.number().default(20).describe("Results per page (default: 20)"),
+    page_size: z.number().min(5).max(50).default(10).describe("Results per page. Must be between 5 and 50 (default: 10)"),
     q: z.string().optional().describe("Search query to filter lists by name"),
-    detailed: z.number().min(0).max(1).optional().describe("1 for detailed info, 0 for basic"),
+    detailed: z.number().min(0).max(1).optional().describe("1 to include count, created_by, created_at, last_item_added_at. 0 for just id and name"),
   },
   async ({ page, page_size, q, detailed }) => {
     let path = `/scraper/list/sn/?page=${page}&page_size=${page_size}`;
@@ -370,7 +370,7 @@ server.tool(
 
 server.tool(
   "export_prospects",
-  "Export enriched contact data from a prospect list. Returns paginated contact records with full enrichment data.",
+  "Export enriched contact data from a prospect list. Returns up to 700 contacts per page with 64 fields including emails, phones, job title, company, location, skills, experience, and more. Use has_next and total_count to paginate.",
   {
     list_id: z.number().describe("Prospect list ID to export"),
     page: z.number().default(1).describe("Page number (default: 1)"),
