@@ -34,13 +34,13 @@
   ],
   "author": "GrowthToolkit",
   "license": "MIT",
-  "homepage": "https://github.com/nicegrowth/growthtoolkit-mcp#readme",
+  "homepage": "https://github.com/iamanantgupta/growthtoolkit-mcp#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nicegrowth/growthtoolkit-mcp.git"
+    "url": "git+https://github.com/iamanantgupta/growthtoolkit-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/nicegrowth/growthtoolkit-mcp/issues"
+    "url": "https://github.com/iamanantgupta/growthtoolkit-mcp/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1"

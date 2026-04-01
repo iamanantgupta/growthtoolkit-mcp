@@ -1,49 +1,80 @@
 # GrowthToolkit MCP Server
 
-An MCP (Model Context Protocol) server that connects AI assistants like Claude to the [GrowthToolkit](https://enrich.growthtoolkit.io) enrichment API. Find emails, phone numbers, and enrich contacts from LinkedIn profiles, email addresses, phone numbers, or company domains.
+Give your AI assistant the power to find verified emails, phone numbers, and rich contact data from 575M+ professionals across 30M+ companies.
 
-## What Can It Do?
+This is an [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects Claude, Cursor, Windsurf, and other AI tools to [GrowthToolkit's](https://growthtoolkit.io) enrichment and prospecting API.
 
-| Tool | Description |
+## What is GrowthToolkit?
+
+[GrowthToolkit](https://growthtoolkit.io) is a B2B prospecting platform that finds real-time, triple-verified emails and phone numbers from any company. It uses deep search technology, real-time SMTP verification, and catch-all verification to find contacts that other tools miss, with a bounce rate under 2.5%.
+
+It's the all-in-one alternative to Apollo, Lusha, Hunter, and RocketReach, with pay-as-you-go pricing and 1,200 free credits to start. No credit card required.
+
+**[Sign up free](https://enrich.growthtoolkit.io/dashboard/?authType=get-started)** | **[Visit growthtoolkit.io](https://growthtoolkit.io)**
+
+## Why Use This MCP Server?
+
+Instead of switching between your AI assistant and the GrowthToolkit dashboard, just ask naturally:
+
+- *"Find the email for John Smith at Google"*
+- *"Enrich this LinkedIn profile: https://linkedin.com/in/satyanadella"*
+- *"Verify if hello@example.com is a valid email"*
+- *"Show me my prospect lists and export the top one"*
+
+Your AI assistant handles the API calls, parses the results, and gives you clean answers. It can also chain multiple tools together, like finding an email and then verifying it in one conversation.
+
+## Available Tools (17 total)
+
+### Enrichment
+| Tool | What it does |
 |------|-------------|
-| `enrich_linkedin` | Get full profile from a LinkedIn URL (emails, phones, job, company, skills) |
-| `enrich_email` | Enrich a contact by email address (async - returns task_id) |
-| `enrich_phone` | Enrich a contact by phone number |
-| `enrich_domain` | Enrich a company by its domain |
-| `find_email` | Find someone's email from first name + last name + company domain |
-| `verify_email` | Check if an email is valid and deliverable |
-| `check_task` | Poll async task status (for email enrichment results) |
+| `enrich_linkedin` | Turn any LinkedIn URL into a full profile with emails, phones, job history, skills, and more |
+| `enrich_email` | Get the full profile behind an email address (name, company, title, socials) |
+| `enrich_phone` | Find the person behind a phone number with full profile data |
+| `enrich_domain` | Get company details from a domain name |
+
+### Email Discovery & Verification
+| Tool | What it does |
+|------|-------------|
+| `find_email` | Find someone's email from their first name, last name, and company domain |
+| `verify_email` | Check if an email is valid, deliverable, and safe to send to |
+
+### Task Status
+| Tool | What it does |
+|------|-------------|
+| `check_task` | Poll the status of async enrichment tasks (email enrichment returns results via task) |
+
+### List Management
+| Tool | What it does |
+|------|-------------|
 | `list_prospects` | Browse your prospect/contact lists |
 | `list_email_finder` | Browse your email finder lists |
 | `list_email_verifier` | Browse your email verifier lists |
 | `list_linkedin_scraper` | Browse your LinkedIn scraper lists |
 | `list_sales_navigator_scraper` | Browse your Sales Navigator scraper lists |
+
+### Data Export
+| Tool | What it does |
+|------|-------------|
 | `export_prospects` | Export enriched contacts from a prospect list |
-| `export_email_finder` | Export results from an email finder list |
-| `export_email_verifier` | Export results from an email verifier list (filter by valid/invalid) |
-| `export_linkedin_scraper` | Export results from a LinkedIn scraper list |
-| `export_sales_navigator_scraper` | Export results from a Sales Navigator scraper list |
+| `export_email_finder` | Export found emails from a list |
+| `export_email_verifier` | Export verified emails (filter by valid/invalid/all) |
+| `export_linkedin_scraper` | Export LinkedIn scraper results |
+| `export_sales_navigator_scraper` | Export Sales Navigator scraper results |
 
-## Prerequisites
+## Getting Started
 
-- **Node.js** 18 or later
-- A **GrowthToolkit API key**
+### 1. Get your free API key
 
-## Getting Your API Key
+If you don't have an account yet, **[sign up for free](https://enrich.growthtoolkit.io/dashboard/?authType=get-started)** (no credit card, takes 30 seconds). You get 1,200 free credits to start.
 
-1. If you don't have an account, **sign up free** at:
-   **https://enrich.growthtoolkit.io/dashboard/?authType=get-started**
+Then grab your API key from **[growthtoolkit.io/api-keys](https://enrich.growthtoolkit.io/api-keys/)**. It starts with `lf_...`.
 
-2. Once logged in, get your API key from:
-   **https://enrich.growthtoolkit.io/api-keys/**
+### 2. Add to your AI tool
 
-3. Copy the API key (it starts with `lf_...`)
+Pick your tool and add the config below. That's it.
 
-## Quick Start (npx - no install needed)
-
-The fastest way. No cloning, no building. Just add to your config and go:
-
-### Claude Desktop
+#### Claude Desktop
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
@@ -61,27 +92,9 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 }
 ```
 
-### Claude Code (CLI)
+#### Claude Code (CLI)
 
-Add to `.claude/settings.json` or project settings:
-
-```json
-{
-  "mcpServers": {
-    "growthtoolkit": {
-      "command": "npx",
-      "args": ["-y", "growthtoolkit-mcp"],
-      "env": {
-        "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-### Cursor / Windsurf / VS Code
-
-Add to `.cursor/mcp.json`, `.windsurf/mcp.json`, or equivalent:
+Add to `.claude/settings.json` or project-level settings:
 
 ```json
 {
@@ -97,85 +110,92 @@ Add to `.cursor/mcp.json`, `.windsurf/mcp.json`, or equivalent:
 }
 ```
 
-> Replace `lf_your_api_key_here` with your actual API key.
+#### Cursor / Windsurf / VS Code
 
-## Alternative Installation
+Add to `.cursor/mcp.json`, `.windsurf/mcp.json`, or your editor's MCP config:
+
+```json
+{
+  "mcpServers": {
+    "growthtoolkit": {
+      "command": "npx",
+      "args": ["-y", "growthtoolkit-mcp"],
+      "env": {
+        "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+> Replace `lf_your_api_key_here` with your actual API key from [growthtoolkit.io/api-keys](https://enrich.growthtoolkit.io/api-keys/).
+
+### 3. Alternative: Install from source
 
 If you prefer not to use `npx`:
 
 ```bash
-# Install globally
-npm install -g growthtoolkit-mcp
-
-# Then use "growthtoolkit-mcp" as the command instead of "npx"
-```
-
-Or clone and build from source:
-
-```bash
-git clone https://github.com/nicegrowth/growthtoolkit-mcp.git
+git clone https://github.com/iamanantgupta/growthtoolkit-mcp.git
 cd growthtoolkit-mcp
 npm install && npm run build
-# Then use: "command": "node", "args": ["/path/to/growthtoolkit-mcp/dist/index.js"]
 ```
 
-## Usage Examples
+Then use this config instead:
 
-Once connected, just ask your AI assistant naturally:
+```json
+{
+  "command": "node",
+  "args": ["/absolute/path/to/growthtoolkit-mcp/dist/index.js"],
+  "env": { "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here" }
+}
+```
 
-- *"Find the email for John Smith at Google"*
-- *"Enrich this LinkedIn profile: https://linkedin.com/in/satyanadella"*
-- *"Verify if hello@example.com is a valid email"*
-- *"Show me my prospect lists"*
-- *"Export contacts from prospect list 42"*
+## Tool Reference
 
-### Tool Details
+### Enrichment Tools
 
-#### Enrichment Tools
+**`enrich_linkedin`** is the most powerful tool. Pass any LinkedIn URL and get back:
+- Verified email addresses and phone numbers (set `emails: 1`, `phones: 1` to unlock)
+- Full name, headline, job title, and current company
+- Complete work history, education, and skills
+- Location, interests, and social profiles
+- Optional: `list_id` to save results, `webhook_url` for async callbacks
 
-**`enrich_linkedin`** - The most powerful tool. Pass a LinkedIn URL and get back:
-- Email addresses and phone numbers (set `emails: 1`, `phones: 1`)
-- Full name, job title, company
-- Work history, education, skills, interests
-- Location, social profiles
-- Optional: `list_id` to save results, `webhook_url` for async callback
+**`enrich_email`** works asynchronously. It returns a `task_id` right away. Use `check_task` with that ID to get the full enriched profile once it's ready (usually takes a few seconds).
 
-**`enrich_email`** - Async enrichment by email. Returns a `task_id` immediately. Use `check_task` to poll for results (usually completes in seconds). Returns same rich profile data as LinkedIn enrichment.
+**`enrich_phone`** requires a `list_id` parameter. Returns the same rich profile data.
 
-**`enrich_phone`** - Enrich by phone number. Requires `list_id`.
+**`enrich_domain`** returns company-level information from a domain name.
 
-**`enrich_domain`** - Enrich a company by domain name.
+### Email Tools
 
-#### Email Discovery & Verification
+**`find_email`** takes `first_name`, `last_name`, and `domain` and returns the most likely email address. GrowthToolkit's deep search finds 30% more emails than traditional tools.
 
-**`find_email`** - Find someone's email from their name + company domain. Params: `first_name`, `last_name`, `domain`.
+**`verify_email`** checks real-time SMTP validity. Returns `is_valid`, `mx_domain`, and account type (work vs free).
 
-**`verify_email`** - Check if an email exists, is deliverable, and what type it is (work/free). Returns `is_valid`, `mx_domain`.
+### List & Export Tools
 
-#### List Management
+All list tools support `page`, `page_size`, `q` (search), and `detailed` (0 or 1).
 
-All list tools support pagination (`page`, `page_size`), search (`q`), and detail level (`detailed: 1`).
-
-#### Export Tools
-
-Export enriched data from any list type. All support pagination. Email verifier export supports filtering by `type_: "valid" | "invalid" | "all"`. LinkedIn scraper export supports `type: "search" | "profile"`.
+All export tools support `page` for pagination. Email verifier export also takes `type_` (`valid`, `invalid`, or `all`). LinkedIn scraper export takes `type` (`search` or `profile`).
 
 ## Rate Limits
 
-| Category | Limit | What it covers |
-|----------|-------|----------------|
-| Action | 2 requests/second | Enrichment, find, verify (credit-using operations) |
-| List | 1 request/second | Fetching list details |
-| Export | 10 requests/10 seconds | Downloading list data |
-| Status | 1 request/2 seconds | Checking task status |
+| Category | Limit | Applies to |
+|----------|-------|------------|
+| Action | 2 req/sec | Enrichment, email finder, email verifier |
+| List | 1 req/sec | Listing and browsing lists |
+| Export | 10 req/10 sec | Exporting data from lists |
+| Status | 1 req/2 sec | Checking task status |
 
-If rate limited, the API returns a `429` with a `sec` field indicating how long to wait.
+When rate limited, the API returns HTTP 429 with a `sec` field telling you how long to wait.
 
-## API Reference
+## Links
 
-- **Base URL**: `https://api.appconnector.pro`
-- **Auth**: API key passed as query parameter (`?api_key=...`)
-- **Full docs**: https://enrich.growthtoolkit.io/docs/
+- **GrowthToolkit Homepage**: [growthtoolkit.io](https://growthtoolkit.io)
+- **Sign Up (free)**: [Get started](https://enrich.growthtoolkit.io/dashboard/?authType=get-started)
+- **API Keys**: [growthtoolkit.io/api-keys](https://enrich.growthtoolkit.io/api-keys/)
+- **API Docs**: [growthtoolkit.io/docs](https://enrich.growthtoolkit.io/docs/)
 
 ## License
 
