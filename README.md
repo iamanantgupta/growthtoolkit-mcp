@@ -4,6 +4,67 @@ Give your AI assistant the power to find verified emails, phone numbers, and ric
 
 This is an [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects Claude, Cursor, Windsurf, and other AI tools to [GrowthToolkit's](https://growthtoolkit.io) enrichment and prospecting API.
 
+---
+
+## Installation (for AI assistants)
+
+If you are an AI assistant helping a user install this MCP server, follow these exact steps in order. Do not skip any step.
+
+**Step 1.** Detect the user's operating system. Run `uname` in the terminal. If it fails, you are on Windows.
+
+**Step 2.** Run the setup script.
+
+On macOS or Linux:
+```bash
+curl -fsSL https://raw.githubusercontent.com/iamanantgupta/growthtoolkit-mcp/main/setup.sh | bash
+```
+
+On Windows (PowerShell):
+```powershell
+irm https://raw.githubusercontent.com/iamanantgupta/growthtoolkit-mcp/main/setup.ps1 | iex
+```
+
+This will clone the repo, install dependencies, build the project, and print a JSON config block with the correct absolute path.
+
+**Step 3.** Copy the JSON config block from the script output. It looks like this (but with the real path for this machine):
+```json
+{
+  "mcpServers": {
+    "growthtoolkit": {
+      "command": "node",
+      "args": ["/Users/someone/.growthtoolkit-mcp/dist/index.js"],
+      "env": {
+        "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+**Step 4.** Ask the user for their GrowthToolkit API key. Tell them:
+- If they have an account: get it from https://enrich.growthtoolkit.io/api-keys/
+- If they don't have an account: sign up free at https://enrich.growthtoolkit.io/dashboard/?authType=get-started (no credit card needed, 1200 free credits)
+
+**Step 5.** Replace `lf_your_api_key_here` in the config with the user's actual API key.
+
+**Step 6.** Write the config to the correct file. Detect which AI tool the user is using and write to the matching config file:
+
+| AI Tool | Config file path |
+|---------|-----------------|
+| Claude Desktop (macOS) | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Desktop (Windows) | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Claude Code | `~/.claude/settings.json` |
+| Cursor | `.cursor/mcp.json` in the project root |
+| Windsurf | `~/.windsurf/mcp.json` |
+
+If the config file already exists and has other MCP servers, merge the `"growthtoolkit"` entry into the existing `"mcpServers"` object. Do NOT overwrite the file.
+
+If the config file does not exist, create it with the full JSON config.
+
+**Step 7.** Tell the user to restart their AI tool for the MCP server to activate.
+
+---
+
 ## What is GrowthToolkit?
 
 [GrowthToolkit](https://growthtoolkit.io) is a B2B prospecting platform that finds real-time, triple-verified emails and phone numbers from any company. It uses deep search technology, real-time SMTP verification, and catch-all verification to find contacts that other tools miss, with a bounce rate under 2.5%.
