@@ -70,73 +70,61 @@ If you don't have an account yet, **[sign up for free](https://enrich.growthtool
 
 Then grab your API key from **[growthtoolkit.io/api-keys](https://enrich.growthtoolkit.io/api-keys/)**. It starts with `lf_...`.
 
-### 2. Install the MCP server
+### 2. Install the MCP server (one command)
+
+Run this in your terminal. It clones, builds, and prints the exact config to copy-paste.
+
+**macOS / Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/iamanantgupta/growthtoolkit-mcp/main/setup.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/iamanantgupta/growthtoolkit-mcp/main/setup.ps1 | iex
+```
+
+That's it. The script installs to `~/.growthtoolkit-mcp` and prints the JSON config with the correct path for your machine.
+
+### 3. Add the config to your AI tool
+
+Copy the JSON config printed by the setup script. Then paste it into the right file:
+
+| Tool | Config file |
+|------|------------|
+| **Claude Desktop (macOS)** | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| **Claude Desktop (Windows)** | `%APPDATA%\Claude\claude_desktop_config.json` |
+| **Claude Code** | `.claude/settings.json` |
+| **Cursor** | `.cursor/mcp.json` |
+| **Windsurf** | `.windsurf/mcp.json` |
+
+The config looks like this (the setup script fills in the correct path automatically):
+
+```json
+{
+  "mcpServers": {
+    "growthtoolkit": {
+      "command": "node",
+      "args": ["~/.growthtoolkit-mcp/dist/index.js"],
+      "env": {
+        "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+Replace `lf_your_api_key_here` with your actual API key from [growthtoolkit.io/api-keys](https://enrich.growthtoolkit.io/api-keys/).
+
+### Manual install (if you prefer)
 
 ```bash
-git clone https://github.com/iamanantgupta/growthtoolkit-mcp.git
-cd growthtoolkit-mcp
+git clone https://github.com/iamanantgupta/growthtoolkit-mcp.git ~/.growthtoolkit-mcp
+cd ~/.growthtoolkit-mcp
 npm install && npm run build
 ```
 
-### 3. Add to your AI tool
-
-Pick your tool and add the config below. Replace `/path/to/growthtoolkit-mcp` with the actual path where you cloned the repo.
-
-#### Claude Desktop
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
-
-```json
-{
-  "mcpServers": {
-    "growthtoolkit": {
-      "command": "node",
-      "args": ["/path/to/growthtoolkit-mcp/dist/index.js"],
-      "env": {
-        "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-#### Claude Code (CLI)
-
-Add to `.claude/settings.json` or project-level settings:
-
-```json
-{
-  "mcpServers": {
-    "growthtoolkit": {
-      "command": "node",
-      "args": ["/path/to/growthtoolkit-mcp/dist/index.js"],
-      "env": {
-        "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-#### Cursor / Windsurf / VS Code
-
-Add to `.cursor/mcp.json`, `.windsurf/mcp.json`, or your editor's MCP config:
-
-```json
-{
-  "mcpServers": {
-    "growthtoolkit": {
-      "command": "node",
-      "args": ["/path/to/growthtoolkit-mcp/dist/index.js"],
-      "env": {
-        "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-> Replace `lf_your_api_key_here` with your actual API key from [growthtoolkit.io/api-keys](https://enrich.growthtoolkit.io/api-keys/).
+Then use the config above.
 
 ## Tool Reference
 

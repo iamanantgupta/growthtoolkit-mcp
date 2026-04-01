@@ -1,0 +1,72 @@
+# GrowthToolkit MCP Server - Windows Setup
+# Usage: irm https://raw.githubusercontent.com/iamanantgupta/growthtoolkit-mcp/main/setup.ps1 | iex
+
+$ErrorActionPreference = "Stop"
+$INSTALL_DIR = "$env:USERPROFILE\.growthtoolkit-mcp"
+
+Write-Host ""
+Write-Host "==> Installing GrowthToolkit MCP Server..." -ForegroundColor Cyan
+Write-Host ""
+
+# Check Node.js
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+    Write-Host "ERROR: Node.js is required but not installed." -ForegroundColor Red
+    Write-Host "Install it from https://nodejs.org/ and try again."
+    exit 1
+}
+
+# Clone or update
+if (Test-Path $INSTALL_DIR) {
+    Write-Host "==> Updating existing installation..."
+    Set-Location $INSTALL_DIR
+    git pull --quiet origin main
+} else {
+    Write-Host "==> Cloning repository..."
+    git clone --quiet https://github.com/iamanantgupta/growthtoolkit-mcp.git $INSTALL_DIR
+    Set-Location $INSTALL_DIR
+}
+
+# Install and build
+Write-Host "==> Installing dependencies..."
+npm install --silent 2>$null
+Write-Host "==> Building..."
+npm run build --silent 2>$null
+
+$distPath = "$INSTALL_DIR\dist\index.js" -replace '\\', '/'
+
+Write-Host ""
+Write-Host "============================================" -ForegroundColor Green
+Write-Host "  GrowthToolkit MCP Server installed!" -ForegroundColor Green
+Write-Host "============================================" -ForegroundColor Green
+Write-Host ""
+Write-Host "Add this to your AI tool's MCP config."
+Write-Host "Replace lf_your_api_key_here with your key"
+Write-Host "from https://enrich.growthtoolkit.io/api-keys/"
+Write-Host ""
+Write-Host "Don't have an account? Sign up free (no credit card):"
+Write-Host "https://enrich.growthtoolkit.io/dashboard/?authType=get-started"
+Write-Host ""
+Write-Host "--- Copy below this line ---" -ForegroundColor Yellow
+Write-Host ""
+Write-Host @"
+{
+  "mcpServers": {
+    "growthtoolkit": {
+      "command": "node",
+      "args": ["$distPath"],
+      "env": {
+        "GROWTHTOOLKIT_API_KEY": "lf_your_api_key_here"
+      }
+    }
+  }
+}
+"@
+Write-Host ""
+Write-Host "--- Copy above this line ---" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Config file locations:"
+Write-Host "  Claude Desktop: $env:APPDATA\Claude\claude_desktop_config.json"
+Write-Host "  Claude Code: .claude\settings.json"
+Write-Host "  Cursor: .cursor\mcp.json"
+Write-Host "  Windsurf: .windsurf\mcp.json"
+Write-Host ""
