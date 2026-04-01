@@ -1,0 +1,52 @@
+{
+  "name": "growthtoolkit-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for GrowthToolkit Enrich API - Find emails, phone numbers, and enrich contacts from LinkedIn, email, phone, or domain.",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "growthtoolkit-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "growthtoolkit",
+    "email-finder",
+    "email-verifier",
+    "enrichment",
+    "linkedin",
+    "lead-generation",
+    "sales-tools",
+    "prospecting",
+    "claude",
+    "ai-tools"
+  ],
+  "author": "GrowthToolkit",
+  "license": "MIT",
+  "homepage": "https://github.com/nicegrowth/growthtoolkit-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicegrowth/growthtoolkit-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nicegrowth/growthtoolkit-mcp/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  }
+}
