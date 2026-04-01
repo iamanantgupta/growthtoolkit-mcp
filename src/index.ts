@@ -21,7 +21,7 @@ async function apiRequest(
   path: string,
   method: "GET" | "POST" = "GET",
   body?: Record<string, unknown>
-): Promise<unknown> {
+): Promise<{ data: unknown; isError: boolean }> {
   const apiKey = getApiKey();
   const separator = path.includes("?") ? "&" : "?";
   const url = `${BASE_URL}${path}${separator}api_key=${apiKey}`;
@@ -34,13 +34,30 @@ async function apiRequest(
     options.body = JSON.stringify(body);
   }
 
-  const res = await fetch(url, options);
-  const data = await res.json();
-  return data;
+  try {
+    const res = await fetch(url, options);
+    const data = await res.json();
+
+    const response = data as Record<string, unknown>;
+    const isError =
+      response.success === false || (res.status >= 400 && res.status !== 429);
+
+    return { data, isError };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Unknown error occurred";
+    return {
+      data: { success: false, error: message },
+      isError: true,
+    };
+  }
 }
 
-function formatResponse(data: unknown): string {
-  return JSON.stringify(data, null, 2);
+function toolResult(response: { data: unknown; isError: boolean }) {
+  return {
+    content: [{ type: "text" as const, text: JSON.stringify(response.data, null, 2) }],
+    isError: response.isError,
+  };
 }
 
 // --- Server setup ---
@@ -71,8 +88,8 @@ server.tool(
     let path = `/enrichment/email/?email=${encodeURIComponent(email)}`;
     if (list_id !== undefined) path += `&list_id=${list_id}`;
     if (webhook_url) path += `&webhook_url=${encodeURIComponent(webhook_url)}`;
-    const data = await apiRequest(path);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(path);
+    return toolResult(result);
   }
 );
 
@@ -111,8 +128,8 @@ server.tool(
     const body: Record<string, unknown> = { url: linkedin_url, emails, phones };
     if (list_id !== undefined) body.list_id = list_id;
     if (webhook_url) body.webhook_url = webhook_url;
-    const data = await apiRequest("/enrichment/linkedin/", "POST", body);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest("/enrichment/linkedin/", "POST", body);
+    return toolResult(result);
   }
 );
 
@@ -135,8 +152,8 @@ server.tool(
   async ({ phone_number, list_id, webhook_url }) => {
     let path = `/enrichment/phone/?phone_number=${encodeURIComponent(phone_number)}&list_id=${list_id}`;
     if (webhook_url) path += `&webhook_url=${encodeURIComponent(webhook_url)}`;
-    const data = await apiRequest(path);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(path);
+    return toolResult(result);
   }
 );
 
@@ -159,8 +176,8 @@ server.tool(
     let path = `/enrichment/domain/?domain=${encodeURIComponent(domain)}`;
     if (list_id !== undefined) path += `&list_id=${list_id}`;
     if (webhook_url) path += `&webhook_url=${encodeURIComponent(webhook_url)}`;
-    const data = await apiRequest(path);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(path);
+    return toolResult(result);
   }
 );
 
@@ -181,8 +198,8 @@ server.tool(
   async ({ first_name, last_name, domain, list_id }) => {
     let path = `/email-finder/?first_name=${encodeURIComponent(first_name)}&last_name=${encodeURIComponent(last_name)}&domain=${encodeURIComponent(domain)}`;
     if (list_id !== undefined) path += `&list_id=${list_id}`;
-    const data = await apiRequest(path);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(path);
+    return toolResult(result);
   }
 );
 
@@ -199,8 +216,8 @@ server.tool(
   async ({ email, list_id }) => {
     let path = `/email-verifier/?email=${encodeURIComponent(email)}`;
     if (list_id !== undefined) path += `&list_id=${list_id}`;
-    const data = await apiRequest(path);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(path);
+    return toolResult(result);
   }
 );
 
@@ -213,8 +230,8 @@ server.tool(
     task_id: z.string().describe("Task ID returned by an enrichment call"),
   },
   async ({ task_id }) => {
-    const data = await apiRequest(`/tasks/status/${encodeURIComponent(task_id)}/`);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(`/tasks/status/${encodeURIComponent(task_id)}/`);
+    return toolResult(result);
   }
 );
 
@@ -233,8 +250,8 @@ server.tool(
     let path = `/lists/prospect/?page=${page}&page_size=${page_size}`;
     if (q) path += `&q=${encodeURIComponent(q)}`;
     if (detailed !== undefined) path += `&detailed=${detailed}`;
-    const data = await apiRequest(path);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(path);
+    return toolResult(result);
   }
 );
 
@@ -251,8 +268,8 @@ server.tool(
     let path = `/email-finder/list/?page=${page}&page_size=${page_size}`;
     if (q) path += `&q=${encodeURIComponent(q)}`;
     if (detailed !== undefined) path += `&detailed=${detailed}`;
-    const data = await apiRequest(path);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(path);
+    return toolResult(result);
   }
 );
 
@@ -269,8 +286,8 @@ server.tool(
     let path = `/email-verifier/list/?page=${page}&page_size=${page_size}`;
     if (q) path += `&q=${encodeURIComponent(q)}`;
     if (detailed !== undefined) path += `&detailed=${detailed}`;
-    const data = await apiRequest(path);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(path);
+    return toolResult(result);
   }
 );
 
@@ -287,8 +304,8 @@ server.tool(
     let path = `/scraper/list/ln/?page=${page}&page_size=${page_size}`;
     if (q) path += `&q=${encodeURIComponent(q)}`;
     if (detailed !== undefined) path += `&detailed=${detailed}`;
-    const data = await apiRequest(path);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(path);
+    return toolResult(result);
   }
 );
 
@@ -305,8 +322,8 @@ server.tool(
     let path = `/scraper/list/sn/?page=${page}&page_size=${page_size}`;
     if (q) path += `&q=${encodeURIComponent(q)}`;
     if (detailed !== undefined) path += `&detailed=${detailed}`;
-    const data = await apiRequest(path);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(path);
+    return toolResult(result);
   }
 );
 
@@ -320,8 +337,8 @@ server.tool(
     page: z.number().default(1).describe("Page number (default: 1)"),
   },
   async ({ list_id, page }) => {
-    const data = await apiRequest(`/lists/prospect/export/${list_id}/?page=${page}`);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(`/lists/prospect/export/${list_id}/?page=${page}`);
+    return toolResult(result);
   }
 );
 
@@ -333,8 +350,8 @@ server.tool(
     page: z.number().default(1).describe("Page number (default: 1)"),
   },
   async ({ list_id, page }) => {
-    const data = await apiRequest(`/email-finder/list/${list_id}/export/?page=${page}`);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(`/email-finder/list/${list_id}/export/?page=${page}`);
+    return toolResult(result);
   }
 );
 
@@ -350,8 +367,8 @@ server.tool(
       .describe("Filter by email validity: valid, invalid, or all"),
   },
   async ({ list_id, page, type_ }) => {
-    const data = await apiRequest(`/email-verifier/list/${list_id}/export/?page=${page}&type_=${type_}`);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(`/email-verifier/list/${list_id}/export/?page=${page}&type_=${type_}`);
+    return toolResult(result);
   }
 );
 
@@ -367,8 +384,8 @@ server.tool(
       .describe("Export type: search or profile"),
   },
   async ({ list_id, page, type }) => {
-    const data = await apiRequest(`/scraper/ln/${list_id}/export/?page=${page}&type=${type}`);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(`/scraper/ln/${list_id}/export/?page=${page}&type=${type}`);
+    return toolResult(result);
   }
 );
 
@@ -380,8 +397,8 @@ server.tool(
     page: z.number().default(1).describe("Page number (default: 1)"),
   },
   async ({ list_id, page }) => {
-    const data = await apiRequest(`/scraper/sn/${list_id}/export/?page=${page}`);
-    return { content: [{ type: "text" as const, text: formatResponse(data) }] };
+    const result = await apiRequest(`/scraper/sn/${list_id}/export/?page=${page}`);
+    return toolResult(result);
   }
 );
 
