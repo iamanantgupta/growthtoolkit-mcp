@@ -20,7 +20,8 @@ function getApiKey(): string {
 async function apiRequest(
   path: string,
   method: "GET" | "POST" = "GET",
-  body?: Record<string, unknown>
+  body?: Record<string, unknown>,
+  retries = 2
 ): Promise<{ data: unknown; isError: boolean }> {
   const apiKey = getApiKey();
   const separator = path.includes("?") ? "&" : "?";
@@ -36,11 +37,37 @@ async function apiRequest(
 
   try {
     const res = await fetch(url, options);
-    const data = await res.json();
+    const text = await res.text();
+
+    // Handle non-JSON responses (some endpoints return raw "None")
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return {
+        data: { success: false, error: `API returned non-JSON response: ${text.slice(0, 200)}` },
+        isError: true,
+      };
+    }
 
     const response = data as Record<string, unknown>;
-    const isError =
-      response.success === false || (res.status >= 400 && res.status !== 429);
+
+    // Auto-retry on 429 rate limit
+    if (response.status === 429 && retries > 0) {
+      const waitSec = ((response.data as Record<string, unknown>)?.sec as number) || 2;
+      await new Promise((r) => setTimeout(r, waitSec * 1000 + 500));
+      return apiRequest(path, method, body, retries - 1);
+    }
+
+    // Handle auth errors (API returns 500 instead of 401 for missing/bad keys)
+    if (res.status === 500 && !text.trim()) {
+      return {
+        data: { success: false, error: "Server error. Check that your API key is valid." },
+        isError: true,
+      };
+    }
+
+    const isError = response.success === false;
 
     return { data, isError };
   } catch (err) {
@@ -125,7 +152,19 @@ server.tool(
       .describe("Webhook URL to receive results when enrichment completes"),
   },
   async ({ linkedin_url, unlock_emails, unlock_phone, list_id, webhook_url }) => {
-    const body: Record<string, unknown> = { url: linkedin_url, unlock_emails, unlock_phone };
+    // Normalize LinkedIn URL: API requires https:// prefix
+    let normalizedUrl = linkedin_url.trim();
+    if (normalizedUrl && !normalizedUrl.startsWith("http")) {
+      if (normalizedUrl.startsWith("linkedin.com") || normalizedUrl.startsWith("www.linkedin.com")) {
+        normalizedUrl = `https://${normalizedUrl}`;
+      } else if (!normalizedUrl.includes("/")) {
+        // Bare username like "satyanadella"
+        normalizedUrl = `https://www.linkedin.com/in/${normalizedUrl}`;
+      } else {
+        normalizedUrl = `https://${normalizedUrl}`;
+      }
+    }
+    const body: Record<string, unknown> = { url: normalizedUrl, unlock_emails, unlock_phone };
     if (list_id !== undefined) body.list_id = list_id;
     if (webhook_url) body.webhook_url = webhook_url;
     const result = await apiRequest("/enrichment/linkedin/", "POST", body);
@@ -159,7 +198,7 @@ server.tool(
 
 server.tool(
   "enrich_domain",
-  "Enrich a company by its domain name. Returns company details including size, industry, location, social profiles, and more.",
+  "Enrich a company by its domain name. Returns company details including size, industry, location, social profiles, and more. Note: this endpoint may not return data for all domains.",
   {
     domain: z.string().describe("Company domain to enrich (e.g. stripe.com)"),
     list_id: z
